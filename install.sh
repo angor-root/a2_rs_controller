@@ -53,7 +53,7 @@ git -C "$SCRIPT_DIR" submodule update --init --recursive
 # ---------------------------------------------------------------
 info "Checking system packages..."
 PKGS=(
-    build-essential cmake git wget
+    build-essential cmake git wget python3.12-venv
     ros-jazzy-joy ros-jazzy-robot-state-publisher ros-jazzy-rviz2
     libyaml-cpp-dev libspdlog-dev libboost-all-dev libfmt-dev libglfw3-dev
 )
@@ -181,7 +181,7 @@ fi
 info "Checking Python packages in venv..."
 "$VENV_DIR/bin/python3" -c "import torch" 2>/dev/null \
     && info "  torch already installed." \
-    || { info "  Installing torch..."; "$VENV_DIR/bin/pip" install torch --quiet; }
+    || { info "  Installing torch (this may take a while — ~700 MB)..."; "$VENV_DIR/bin/pip" install torch; }
 "$VENV_DIR/bin/python3" -c "import numpy" 2>/dev/null \
     && info "  numpy already installed." \
     || { info "  Installing numpy..."; "$VENV_DIR/bin/pip" install numpy --quiet; }
