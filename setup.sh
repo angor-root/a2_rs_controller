@@ -3,18 +3,25 @@
 # Source this file, don't execute it: source setup.sh
 
 SCRIPT_DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
-WS_ROOT=$(realpath "$SCRIPT_DIR/../../..")
 
 # --- ROS2 ---
 source /opt/ros/jazzy/setup.bash
 
 # --- Workspace install ---
-if [ -f "$WS_ROOT/install/setup.bash" ]; then
-    source "$WS_ROOT/install/setup.bash"
-    echo "[a2_ros] Sourced workspace: $WS_ROOT"
+if [ -f "$SCRIPT_DIR/install/setup.bash" ]; then
+    source "$SCRIPT_DIR/install/setup.bash"
+    echo "[a2_ros] Sourced workspace: $SCRIPT_DIR"
 else
     echo "[a2_ros] WARNING: Workspace not built yet."
-    echo "  Run:  cd $WS_ROOT && colcon build --symlink-install"
+    echo "  Run:  cd $SCRIPT_DIR && colcon build --symlink-install"
+fi
+
+# --- Python venv (torch, numpy + inherits ROS2 packages) ---
+if [ -f "$SCRIPT_DIR/.venv/bin/activate" ]; then
+    source "$SCRIPT_DIR/.venv/bin/activate"
+    echo "[a2_ros] Activated venv: $SCRIPT_DIR/.venv"
+else
+    echo "[a2_ros] WARNING: Python venv not found. Run install.sh first."
 fi
 
 # --- ROS2 middleware ---

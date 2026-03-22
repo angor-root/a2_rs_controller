@@ -5,6 +5,9 @@ log/
 *.pyc
 __pycache__/
 
+# Python venv
+.venv/
+
 # Editor
 .vscode/
 .idea/

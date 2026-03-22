@@ -17,12 +17,11 @@ ask_yn() {
 }
 
 SCRIPT_DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
-WS_ROOT=$(realpath "$SCRIPT_DIR/../../..")
 MUJOCO_VERSION="3.3.6"
 MUJOCO_DIR="$HOME/.mujoco/mujoco-${MUJOCO_VERSION}"
 
 echo "=== a2_ros install ==="
-echo "Workspace : $WS_ROOT"
+echo "Repo      : $SCRIPT_DIR"
 echo "MuJoCo    : ${MUJOCO_VERSION}"
 echo ""
 
@@ -166,28 +165,34 @@ PYEOF
 done
 
 # ---------------------------------------------------------------
-# Python packages
+# Python venv
+# --system-site-packages lets the venv see ROS2 Python packages
+# (rclpy, etc.) without needing to install them again.
+# We never *activate* the venv here so colcon uses system Python.
 # ---------------------------------------------------------------
-info "Checking Python packages..."
-python3 -c "import torch" 2>/dev/null  && info "torch already installed."  || { info "Installing torch...";  pip install torch  --quiet; }
-python3 -c "import numpy" 2>/dev/null  && info "numpy already installed."  || { info "Installing numpy...";  pip install numpy  --quiet; }
+VENV_DIR="$SCRIPT_DIR/.venv"
+if [ ! -d "$VENV_DIR" ]; then
+    info "Creating Python venv at .venv (--system-site-packages)..."
+    /usr/bin/python3 -m venv --system-site-packages "$VENV_DIR"
+else
+    info "Python venv already exists."
+fi
+
+info "Checking Python packages in venv..."
+"$VENV_DIR/bin/python3" -c "import torch" 2>/dev/null \
+    && info "  torch already installed." \
+    || { info "  Installing torch..."; "$VENV_DIR/bin/pip" install torch --quiet; }
+"$VENV_DIR/bin/python3" -c "import numpy" 2>/dev/null \
+    && info "  numpy already installed." \
+    || { info "  Installing numpy..."; "$VENV_DIR/bin/pip" install numpy --quiet; }
 
 # ---------------------------------------------------------------
-# Ignore old/stale workspaces in the same src/ tree
-# ---------------------------------------------------------------
-for ignore_candidate in "$WS_ROOT/src/rss_simulation_ws" "$WS_ROOT/src/rss_ws"; do
-    if [ -d "$ignore_candidate" ] && [ ! -f "$ignore_candidate/COLCON_IGNORE" ]; then
-        touch "$ignore_candidate/COLCON_IGNORE"
-        info "Added COLCON_IGNORE to $ignore_candidate"
-    fi
-done
-
-# ---------------------------------------------------------------
-# Build workspace
+# Build workspace (builds inside the repo directory)
+# Venv must NOT be active here — colcon needs system Python.
 # ---------------------------------------------------------------
 info "Building workspace..."
 source /opt/ros/jazzy/setup.bash
-cd "$WS_ROOT"
+cd "$SCRIPT_DIR"
 colcon build --symlink-install
 info "Build complete."
 
