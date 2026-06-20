@@ -5,7 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded: ~
       Splitter Ratio: 0.800000011920929
-    Tree Height: 140
+    Tree Height: 355
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -22,7 +22,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: FreePaths
+    SyncSource: RegisteredScan
   - Class: teleop_rviz_plugin/TeleopPanel
     Name: TeleopPanel
 Visualization Manager:
@@ -131,6 +131,18 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        front_camera_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        front_lidar_imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         front_lidar_link:
           Alpha: 1
           Show Axes: false
@@ -331,7 +343,7 @@ Visualization Manager:
       Enabled: true
       Name: GlobalPath
       Namespaces:
-        global_path: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -374,12 +386,9 @@ Visualization Manager:
       Name: Goalpoint
       Namespaces:
         clear_nodes: false
-        free_goal: true
         free_odom_position: false
         last_nav_node: false
-        original_goal: true
         out_contour: false
-        waypoint: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -391,10 +400,7 @@ Visualization Manager:
       Enabled: true
       Name: ViewpointExtend
       Namespaces:
-        corner_direct: true
-        extend_viewpoint: true
-        origin_viewpoint: true
-        raytracing_line: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -457,36 +463,36 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 0.7976330518722534
+        Y: 0.23707114160060883
+        Z: 0.38701286911964417
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8197968602180481
+      Pitch: 0.8397968411445618
       Target Frame: base_link
       Value: Orbit (rviz_default_plugins)
-      Yaw: 2.1499812602996826
+      Yaw: 2.4049835205078125
     Saved: ~
 Window Geometry:
   Displays:
-    collapsed: false
+    collapsed: true
   Height: 978
-  Hide Left Dock: false
+  Hide Left Dock: true
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000026f00000374fc0200000006fb000000100044006900730070006c006100790073010000003f000000cc000000cc00fffffffb0000001200530065006c0065006300740069006f006e01000001110000005d0000005d00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007301000001740000005d0000005d00fffffffb0000000a0056006900650077007301000001d7000000a9000000a900fffffffb0000000800540069006d006501000002860000003c0000003c00fffffffb0000001600540065006c0065006f007000500061006e0065006c01000002c8000000eb000000eb00ffffff000003340000037400000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000001000000000000026f0000037cfc0200000006fb000000100044006900730070006c006100790073000000003b0000019e000000c700fffffffb0000001200530065006c0065006300740069006f006e000000010f0000005e0000005c00fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073000000012a0000006a0000005c00fffffffb0000000a0056006900650077007300000001df00000156000000a000fffffffb0000000800540069006d0065000000033b0000007c0000003700fffffffb0000001600540065006c0065006f007000500061006e0065006c000000028400000133000000d200ffffff000005a90000037c00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   TeleopPanel:
     collapsed: false
   Time:
-    collapsed: false
+    collapsed: true
   Tool Properties:
     collapsed: false
   Views:
-    collapsed: false
+    collapsed: true
   Width: 1449
   X: 200
-  Y: 398
+  Y: 185

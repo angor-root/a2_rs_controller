@@ -185,7 +185,7 @@ def generate_launch_description():
                 'stopYawRateGain':  8.0,
                 'maxYawRate':       45.0,
                 'maxSpeed':         0.5,
-                'maxAccel':         0.5,
+                'maxAccel':         2.0,
                 'switchTimeThre':   1.0,
                 'dirDiffThre':      0.1,
                 'stopDisThre':      0.3,
