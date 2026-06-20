@@ -1,5 +1,4 @@
 #include "rclcpp/rclcpp.hpp"
-#include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 
 // Bidirectional Twist <-> TwistStamped bridge for /cmd_vel.
@@ -26,50 +25,26 @@ class NavVelRelay : public rclcpp::Node {
 public:
   NavVelRelay() : Node("nav_vel_relay")
   {
-    const std::string twist_in   = declare_parameter<std::string>("twist_in_topic", "/cmd_vel_in");
-    const std::string stamped    = declare_parameter<std::string>("stamped_topic", "/cmd_vel");
-    const std::string twist_out  = declare_parameter<std::string>("twist_out_topic", "/cmd_vel_twist");
-    frame_id_                    = declare_parameter<std::string>("frame_id", "");
+    pub_ = create_publisher<geometry_msgs::msg::TwistStamped>("/nav_vel", 10);
+    sub_ = create_subscription<geometry_msgs::msg::TwistStamped>(
+      "/path_follower_cmd", 10,
+      std::bind(&NavVelRelay::cmdVelCallback, this, std::placeholders::_1));
 
-    // stamp: Twist -> TwistStamped
-    stamped_pub_ = create_publisher<geometry_msgs::msg::TwistStamped>(stamped, 10);
-    twist_in_sub_ = create_subscription<geometry_msgs::msg::Twist>(
-      twist_in, 10,
-      [this](const geometry_msgs::msg::Twist::SharedPtr msg) {
-        geometry_msgs::msg::TwistStamped out;
-        out.header.stamp = now();
-        out.header.frame_id = frame_id_;
-        out.twist = *msg;
-        stamped_pub_->publish(out);
-      });
-
-    // unstamp: TwistStamped -> Twist (skipped if it would feed back into the stamper)
-    if (twist_out == twist_in) {
-      RCLCPP_ERROR(get_logger(),
-                   "twist_out_topic == twist_in_topic ('%s') would create a feedback loop; "
-                   "disabling the unstamp direction.", twist_in.c_str());
-    } else {
-      twist_out_pub_ = create_publisher<geometry_msgs::msg::Twist>(twist_out, 10);
-      stamped_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-        stamped, 10,
-        [this](const geometry_msgs::msg::TwistStamped::SharedPtr msg) {
-          twist_out_pub_->publish(msg->twist);
-        });
-    }
-
-    RCLCPP_INFO(get_logger(), "stamp:   %s (Twist) -> %s (TwistStamped)",
-                twist_in.c_str(), stamped.c_str());
-    if (stamped_sub_)
-      RCLCPP_INFO(get_logger(), "unstamp: %s (TwistStamped) -> %s (Twist)",
-                  stamped.c_str(), twist_out.c_str());
+    timer_ = create_wall_timer(std::chrono::milliseconds(1), [this]() {
+      pub_->publish(cmd_vel_);
+    });
   }
 
 private:
-  std::string frame_id_;
-  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr    stamped_pub_;
-  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr        twist_in_sub_;
-  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr           twist_out_pub_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr stamped_sub_;
+  void cmdVelCallback(const geometry_msgs::msg::TwistStamped::SharedPtr msg)
+  {
+    cmd_vel_ = *msg;
+  }
+
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr pub_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_;
+  rclcpp::TimerBase::SharedPtr timer_;
+  geometry_msgs::msg::TwistStamped cmd_vel_;
 };
 
 int main(int argc, char * argv[])

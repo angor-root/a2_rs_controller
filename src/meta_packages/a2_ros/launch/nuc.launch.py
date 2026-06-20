@@ -131,7 +131,7 @@ def generate_launch_description():
         rviz_arg,
         lidar_config_arg,
         # bridge_launch,
-        teleop_launch,
+        # teleop_launch,
         # camera_launch,
         # Scope the 'rviz':'false' override below to lidar_launch only -
         # without push/pop it overwrites the global 'rviz' LaunchConfiguration,

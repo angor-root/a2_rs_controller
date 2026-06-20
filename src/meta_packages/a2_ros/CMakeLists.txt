@@ -48,7 +48,6 @@ ament_target_dependencies(teleop_joy
   a2_interfaces
 )
 
-# nav_vel_relay: bidirectional Twist <-> TwistStamped bridge for /cmd_vel
 add_executable(nav_vel_relay
   src/nav_vel_relay.cpp
 )
