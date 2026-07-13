@@ -27,3 +27,6 @@ external/gscam2/
 
 # untracked
 untracked/
+
+# Local-only documentation
+docs/memoria_proyecto_a2.md
