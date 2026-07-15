@@ -77,12 +77,22 @@ struct SportStateTopic : IngressType {
     sub.reset(new unitree::robot::ChannelSubscriber<DdsTopic_t>(dds_topic));
     sub->InitChannel(
       [this, node](const void* msg) {
+        RCLCPP_INFO(node->get_logger(), "SportStateTopic callback ENTERED");  // ← LOG 1
         state = *static_cast<const DdsTopic_t*>(msg);
         rclcpp::Time now = node->get_clock()->now();
-        if ((now - last_pub).seconds() < 0.02)
+        if ((now - last_pub).seconds() < 0.02) {
+          RCLCPP_INFO(node->get_logger(), "Throttling: skipping publish");   // ← LOG 2
           return;
+        }
         last_pub = now;
+        RCLCPP_INFO(node->get_logger(), "Publishing sport_mode");           // ← LOG 3
         mode_pub->publish(converters::sport_mode(state));
+        
+        if (!vel_pub) {
+          RCLCPP_ERROR(node->get_logger(), "vel_pub is NULL!");             // ← LOG 4
+          return;
+        }
+        RCLCPP_INFO(node->get_logger(), "Publishing base_velocity");        // ← LOG 5
         geometry_msgs::msg::TwistStamped vel_msg;
         vel_msg.header.stamp = now;
         vel_msg.header.frame_id = "base_link";
@@ -93,6 +103,7 @@ struct SportStateTopic : IngressType {
         vel_msg.twist.angular.y = 0.0;
         vel_msg.twist.angular.z = state.yaw_speed();
         vel_pub->publish(vel_msg);
+        RCLCPP_INFO(node->get_logger(), "base_velocity published");
       },
       kDefaultDdsQueueLen);
   }
