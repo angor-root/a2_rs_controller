@@ -70,32 +70,39 @@ struct SportStateTopic : IngressType {
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr vel_pub; 
   rclcpp::Time last_pub{0, 0, RCL_ROS_TIME};
 
-  void init(rclcpp::Node* node) {
-    mode_pub = node->create_publisher<std_msgs::msg::UInt8>("/a2/sport_mode", kDefaultRosQoS);
-    vel_pub = node->create_publisher<geometry_msgs::msg::TwistStamped>(
-        "/base_velocity", kDefaultRosQoS);
-    sub.reset(new unitree::robot::ChannelSubscriber<DdsTopic_t>(dds_topic));
-    sub->InitChannel(
-      [this, node](const void* msg) {
-        state = *static_cast<const DdsTopic_t*>(msg);
-        rclcpp::Time now = node->get_clock()->now();
-        if ((now - last_pub).seconds() < 0.02)
-          return;
-        last_pub = now;
-        mode_pub->publish(converters::sport_mode(state));
-        geometry_msgs::msg::TwistStamped vel_msg;
-        vel_msg.header.stamp = now;
-        vel_msg.header.frame_id = "base_link";
-        vel_msg.twist.linear.x = state.velocity()[0];
-        vel_msg.twist.linear.y = state.velocity()[1];
-        vel_msg.twist.linear.z = state.velocity()[2];
-        vel_msg.twist.angular.x = 0.0;
-        vel_msg.twist.angular.y = 0.0;
-        vel_msg.twist.angular.z = state.yaw_speed();
-        vel_pub->publish(vel_msg);
-      },
-      kDefaultDdsQueueLen);
-  }
+void init(rclcpp::Node* node) {
+  RCLCPP_INFO(node->get_logger(), "SportStateTopic init START");
+  mode_pub = node->create_publisher<std_msgs::msg::UInt8>("/a2/sport_mode", kDefaultRosQoS);
+  vel_pub = node->create_publisher<geometry_msgs::msg::TwistStamped>(
+      "/base_velocity", kDefaultRosQoS);
+  RCLCPP_INFO(node->get_logger(), "SportStateTopic init DONE");
+  sub.reset(new unitree::robot::ChannelSubscriber<DdsTopic_t>(dds_topic));
+  sub->InitChannel(
+    [this, node](const void* msg) {
+      state = *static_cast<const DdsTopic_t*>(msg);
+      rclcpp::Time now = node->get_clock()->now();
+      if ((now - last_pub).seconds() < 0.02)
+        return;
+      last_pub = now;
+      mode_pub->publish(converters::sport_mode(state));
+      if (!vel_pub) {
+        RCLCPP_ERROR(node->get_logger(), "vel_pub is NULL!");
+        return;
+      }
+      geometry_msgs::msg::TwistStamped vel_msg;
+      vel_msg.header.stamp = now;
+      vel_msg.header.frame_id = "base_link";
+      vel_msg.twist.linear.x = state.velocity()[0];
+      vel_msg.twist.linear.y = state.velocity()[1];
+      vel_msg.twist.linear.z = state.velocity()[2];
+      vel_msg.twist.angular.x = 0.0;
+      vel_msg.twist.angular.y = 0.0;
+      vel_msg.twist.angular.z = state.yaw_speed();
+      vel_pub->publish(vel_msg);
+      RCLCPP_INFO(node->get_logger(), "Published /base_velocity: x=%.3f", vel_msg.twist.linear.x);
+    },
+    kDefaultDdsQueueLen);
+}
 };
 
 }  // namespace bridge
